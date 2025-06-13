@@ -1,0 +1,280 @@
+/**
+ * Estilos para ProductList Component
+ * Grid responsive con virtual scrolling y estados optimizados
+ */
+
+.product-list-container {
+  width: 100%;
+  min-height: 400px;
+}
+
+/* Header de la lista */
+.list-header {
+  padding: 16px 0;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 24px;
+}
+
+.list-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.product-count {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+
+  .filtered-indicator {
+    color: #666;
+    font-weight: 400;
+    font-size: 14px;
+  }
+}
+
+/* Grid de productos */
+.product-grid {
+  position: relative;
+
+  &.loading {
+    opacity: 0.7;
+  }
+}
+
+/* Grid regular */
+.regular-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+  padding: 0 16px;
+}
+
+/* Virtual scrolling */
+.virtual-scroll-viewport {
+  height: 600px;
+  width: 100%;
+}
+
+.virtual-item {
+  display: flex;
+  justify-content: center;
+  padding: 12px;
+}
+
+/* Estados de la lista */
+.loading-state,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 32px;
+  text-align: center;
+  min-height: 300px;
+}
+
+.loading-state {
+  p {
+    margin-top: 16px;
+    color: #666;
+    font-size: 16px;
+  }
+}
+
+.empty-state {
+  .empty-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: #ccc;
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    margin: 0 0 8px 0;
+    color: #333;
+    font-size: 24px;
+    font-weight: 500;
+  }
+
+  p {
+    margin: 0 0 24px 0;
+    color: #666;
+    font-size: 16px;
+    max-width: 400px;
+  }
+}
+
+/* Botón cargar más */
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  padding: 32px 16px;
+
+  button {
+    min-width: 200px;
+    height: 48px;
+
+    mat-spinner {
+      margin-right: 8px;
+    }
+
+    mat-icon {
+      margin-right: 8px;
+    }
+  }
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+  .regular-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .regular-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 16px;
+    padding: 0 8px;
+  }
+
+  .list-header {
+    padding: 12px 8px;
+    margin-bottom: 16px;
+  }
+
+  .list-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .virtual-scroll-viewport {
+    height: 500px;
+  }
+
+  .loading-state,
+  .empty-state {
+    padding: 48px 16px;
+    min-height: 250px;
+  }
+
+  .empty-state {
+    .empty-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+    }
+
+    h3 {
+      font-size: 20px;
+    }
+
+    p {
+      font-size: 14px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .regular-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 0 4px;
+  }
+
+  .virtual-item {
+    padding: 8px;
+  }
+
+  .load-more-container {
+    padding: 24px 8px;
+
+    button {
+      width: 100%;
+      max-width: 300px;
+    }
+  }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.regular-grid app-product-card {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Modo oscuro */
+@media (prefers-color-scheme: dark) {
+  .list-header {
+    border-bottom-color: #333;
+  }
+
+  .product-count {
+    color: #fff;
+
+    .filtered-indicator {
+      color: #ccc;
+    }
+  }
+
+  .empty-state {
+    .empty-icon {
+      color: #666;
+    }
+
+    h3 {
+      color: #fff;
+    }
+
+    p {
+      color: #ccc;
+    }
+  }
+
+  .loading-state p {
+    color: #ccc;
+  }
+}
+
+/* Accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .regular-grid app-product-card {
+    animation: none;
+  }
+
+  .product-grid {
+    transition: none;
+  }
+}
+
+/* Estados de focus para accesibilidad */
+.load-more-container button:focus {
+  outline: 2px solid #1976d2;
+  outline-offset: 2px;
+}
+
+/* Optimizaciones de performance */
+.virtual-scroll-viewport {
+  contain: layout style paint;
+}
+
+.regular-grid {
+  contain: layout style;
+}
+
+.virtual-item {
+  contain: layout style paint;
+}
