@@ -5,6 +5,7 @@
 
 // Container Components
 export { ProductDetailContainerComponent } from './product-detail-container/product-detail-container.component';
+export { ProductListContainerV2Component } from './product-list-container/product-list-container-v2.component';
 export { ProductListContainerComponent } from './product-list-container/product-list-container.component';
 
 // Re-exports de tipos relacionados

@@ -13,6 +13,7 @@
   text-align: center;
   margin-bottom: 48px;
   padding: 32px 0;
+  position: relative;
 
   h1 {
     font-size: 2.5rem;
@@ -27,6 +28,94 @@
     margin: 0;
     max-width: 600px;
     margin: 0 auto;
+  }
+
+  .view-controls {
+    position: absolute;
+    top: 32px;
+    right: 0;
+    display: flex;
+    gap: 12px;
+
+    button {
+      background: white;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        border-color: #1976d2;
+        background: #f5f5f5;
+      }
+
+      &:focus {
+        outline: 2px solid #1976d2;
+        outline-offset: 2px;
+      }
+    }
+  }
+}
+
+/* Filtros rápidos */
+.quick-filters {
+  margin-bottom: 32px;
+
+  h3 {
+    margin: 0 0 16px 0;
+    color: #333;
+    font-size: 1.1rem;
+    font-weight: 500;
+  }
+
+  .filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    .filter-chip {
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        border-color: #1976d2;
+        background: #f5f5f5;
+      }
+
+      &.active {
+        background: #1976d2;
+        color: white;
+        border-color: #1976d2;
+      }
+
+      &:focus {
+        outline: 2px solid #1976d2;
+        outline-offset: 2px;
+      }
+    }
+  }
+}
+
+/* Información de estado */
+.status-info {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+  text-align: center;
+
+  p {
+    margin: 0;
+    color: #856404;
+    font-weight: 500;
   }
 }
 
