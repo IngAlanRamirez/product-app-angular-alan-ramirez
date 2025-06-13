@@ -14,15 +14,15 @@
     <mat-spinner diameter="32"></mat-spinner>
     <div style="margin-top: 0.5rem; color: #1976d2;">Buscando producto...</div>
   </div>
-  <mat-card *ngIf="product">
-    <img mat-card-image [src]="product.image" alt="{{ product.title }}" style="max-width: 100px; margin: auto; display: block;" />
-    <mat-card-title>{{ product.title }}</mat-card-title>
-    <mat-card-subtitle>{{ product.category }}</mat-card-subtitle>
-    <mat-card-content>
-      <p><strong>Precio:</strong> {{ product.price | currency }}</p>
-      <p>{{ product.description }}</p>
-    </mat-card-content>
-  </mat-card>
+  <mat-card *ngIf="product" style="padding: 1.5rem; margin-top: 1rem;">
+  <img mat-card-image [src]="product.image" alt="{{ product.title }}" style="max-width: 100px; margin: auto; display: block;" />
+  <mat-card-title>{{ product.title }}</mat-card-title>
+  <mat-card-subtitle>{{ product.category }}</mat-card-subtitle>
+  <mat-card-content>
+    <p><strong>Precio:</strong> {{ product.price | currency }}</p>
+    <p>{{ product.description }}</p>
+  </mat-card-content>
+</mat-card>
   <mat-card *ngIf="searched && !product && !loading" style="margin-top: 1rem; text-align: center; color: #b71c1c;">
     No se encontraron coincidencias para el ID ingresado
   </mat-card>
