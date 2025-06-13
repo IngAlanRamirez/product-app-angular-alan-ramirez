@@ -1,13 +1,26 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Product } from '../product.service';
 
 @Component({
   selector: 'app-product-form',
   templateUrl: './product-form.component.html',
   styleUrls: ['./product-form.component.scss'],
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatCardModule,
+    MatProgressSpinnerModule
+  ],
 })
 export class ProductFormComponent {
   @Input() product: Product | null = null;

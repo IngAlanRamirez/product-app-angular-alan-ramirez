@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { CommonModule } from '@angular/common';
 import { Product, ProductService } from '../product.service';
 // import { ProductFormComponent } from '../product-form/product-form.component';
@@ -8,6 +9,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-product-list',
@@ -18,7 +20,8 @@ import { MatCardModule } from '@angular/material/card';
     MatTableModule,
     MatButtonModule,
     MatIconModule,
-    MatCardModule
+    MatCardModule,
+    MatSnackBarModule
   ],
   templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.scss'],
@@ -27,8 +30,7 @@ export class ProductListComponent {
   products: Product[] = [];
   loading: boolean = false;
   error: string | null = null;
-  notificationMessage: string | null = null;
-  notificationType: 'success' | 'error' | null = null;
+
 
   showForm = false;
   editingProduct: Product | null = null;
@@ -40,7 +42,7 @@ export class ProductListComponent {
   searchedProduct: Product | null = null;
   searchError: string | null = null;
 
-  constructor(private productService: ProductService) {
+  constructor(private productService: ProductService, private snackBar: MatSnackBar) {
     this.loadProducts();
   }
 
@@ -53,19 +55,11 @@ export class ProductListComponent {
         this.loading = false;
       },
       error: (err) => {
-        this.error = err.message || 'Error cargando productos';
+        this.error = 'Error al cargar productos';
         this.loading = false;
+        this.snackBar.open('Error al cargar productos', 'Cerrar', { duration: 3000, panelClass: 'snackbar-error' });
       }
     });
-  }
-
-  showNotification(message: string, type: 'success' | 'error') {
-    this.notificationMessage = message;
-    this.notificationType = type;
-    setTimeout(() => {
-      this.notificationMessage = null;
-      this.notificationType = null;
-    }, 3000);
   }
 
   onAdd() {
@@ -90,24 +84,25 @@ export class ProductListComponent {
       this.productService.updateProduct(this.editingProduct.id, product).subscribe({
         next: (updated) => {
           this.products = this.products.map(p => p.id === updated.id ? updated : p);
-          this.showNotification('Producto actualizado correctamente', 'success');
+          this.snackBar.open('Producto actualizado exitosamente', 'Cerrar', { duration: 3000, panelClass: 'snackbar-success' });
           this.formLoading = false;
         },
         error: (err) => {
-          this.showNotification('Error actualizando producto', 'error');
+          this.snackBar.open('Error al actualizar producto', 'Cerrar', { duration: 3000, panelClass: 'snackbar-error' });
           this.formLoading = false;
         }
       });
     } else {
       // Agregar producto
       this.productService.addProduct(product).subscribe({
-        next: (created) => {
-          this.products = [...this.products, created];
-          this.showNotification('Producto agregado correctamente', 'success');
+        next: (newProduct) => {
+          this.products.push(newProduct);
+          this.showForm = false;
           this.formLoading = false;
+          this.snackBar.open('Producto agregado exitosamente', 'Cerrar', { duration: 3000, panelClass: 'snackbar-success' });
         },
         error: (err) => {
-          this.showNotification('Error agregando producto', 'error');
+          this.snackBar.open('Error al agregar producto', 'Cerrar', { duration: 3000, panelClass: 'snackbar-error' });
           this.formLoading = false;
         }
       });
@@ -122,10 +117,10 @@ export class ProductListComponent {
       this.productService.deleteProduct(product.id).subscribe({
         next: () => {
           this.products = this.products.filter(p => p.id !== product.id);
-          this.showNotification('Producto eliminado correctamente', 'success');
+          this.snackBar.open('Producto eliminado exitosamente', 'Cerrar', { duration: 3000, panelClass: 'snackbar-success' });
         },
         error: (err) => {
-          this.showNotification('Error eliminando producto', 'error');
+          this.snackBar.open('Error al eliminar producto', 'Cerrar', { duration: 3000, panelClass: 'snackbar-error' });
         }
       });
     }

@@ -5,12 +5,6 @@
   }
 }
 
-@if (notificationMessage) {
-  <div [ngClass]="notificationType">
-    {{ notificationMessage }}
-  </div>
-}
-
 <app-product-modal
   [visible]="showForm"
   [product]="editingProduct"
