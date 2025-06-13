@@ -1,34 +1,59 @@
-@if (loading) {
+@if (!(loading$ | async)) {
+  @if (!showForm) {
+    <button (click)="onAdd()">Agregar producto</button>
+  }
+}
+
+@if (notificationMessage$ | async) {
+  <div [ngClass]="notificationType$ | async">
+    {{ notificationMessage$ | async }}
+  </div>
+}
+
+<app-product-modal
+  [visible]="showForm"
+  [product]="editingProduct"
+  [loading]="formLoading"
+  (save)="onSave($event)"
+  (cancel)="onCancelForm()"
+/>
+
+@if (loading$ | async) {
   <div>Cargando productos...</div>
 }
-<div *ngIf="error">{{ error }}</div>
-@if (!loading && !error) {
-<table>
-  <thead>
-    <tr>
-      <th>Imagen</th>
-      <th>Nombre</th>
-      <th>Precio</th>
-      <th>Categoría</th>
-      <th>Acciones</th>
-    </tr>
-  </thead>
-  <tbody>
-    @for (product of products$ | async; track $index) {
-    <tr>
-      <td><img [src]="product.image" alt="{{ product.title }}" width="50"></td>
-      <td>{{ product.title }}</td>
-      <td>{{ product.price | currency }}</td>
-      <td>{{ product.category }}</td>
-      <td>
-        <!-- Acciones de editar/eliminar irán aquí -->
-      </td>
-    </tr>
-    } @empty {
-      <tr>
-        <td colspan="5">No hay productos</td>
-      </tr>
-    }
-  </tbody>
-</table>
+
+@if (error$ | async) {
+  <div>{{ error$ | async }}</div>
 }
+
+@if (!(loading$ | async) && !(error$ | async)) {
+  <table>
+    <thead>
+      <tr>
+        <th>Imagen</th>
+        <th>Nombre</th>
+        <th>Precio</th>
+        <th>Categoría</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (product of products$ | async; track $index) {
+        <tr>
+          <td><img [src]="product.image" alt="{{ product.title }}" width="50"></td>
+          <td>{{ product.title }}</td>
+          <td>{{ product.price | currency }}</td>
+          <td>{{ product.category }}</td>
+          <td>
+            <button (click)="onEdit(product)">Editar</button>
+            <button (click)="onDelete(product)">Eliminar</button>
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="5">No hay productos</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+  }

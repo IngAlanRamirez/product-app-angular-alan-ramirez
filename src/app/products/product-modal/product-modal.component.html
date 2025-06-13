@@ -1,0 +1,16 @@
+<div class="modal-backdrop" *ngIf="visible">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>{{ product ? 'Editar producto' : 'Agregar producto' }}</h2>
+      <button class="close" (click)="close()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <app-product-form
+        [product]="product"
+        [loading]="loading"
+        (save)="save.emit($event)"
+        (cancel)="close()"
+      />
+    </div>
+  </div>
+</div>

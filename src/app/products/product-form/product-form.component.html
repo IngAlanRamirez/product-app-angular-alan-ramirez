@@ -1,0 +1,28 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <div>
+    <label>Nombre</label>
+    <input formControlName="title" />
+    <span *ngIf="form.get('title')?.invalid && form.get('title')?.touched">Requerido</span>
+  </div>
+  <div>
+    <label>Precio</label>
+    <input type="number" formControlName="price" />
+    <span *ngIf="form.get('price')?.invalid && form.get('price')?.touched">Precio mayor a 0</span>
+  </div>
+  <div>
+    <label>Categoría</label>
+    <input formControlName="category" />
+    <span *ngIf="form.get('category')?.invalid && form.get('category')?.touched">Requerido</span>
+  </div>
+  <div>
+    <label>Imagen (URL)</label>
+    <input formControlName="image" />
+    <span *ngIf="form.get('image')?.invalid && form.get('image')?.touched">Debe ser una URL válida</span>
+  </div>
+  <div>
+    <label>Descripción</label>
+    <textarea formControlName="description"></textarea>
+  </div>
+  <button type="submit" [disabled]="loading">{{ product ? 'Actualizar' : 'Agregar' }}</button>
+  <button type="button" (click)="cancel.emit()" [disabled]="loading">Cancelar</button>
+</form>
