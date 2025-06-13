@@ -1,8 +1,11 @@
 /**
  * Barrel exports para containers de productos
+ * Componentes inteligentes que manejan estado y lógica de negocio
  */
 
-// Aquí se exportarán todos los containers
-// Ejemplo:
-// export * from './product-list-container/product-list-container.component';
-// export * from './product-form-container/product-form-container.component';
+// Container Components
+export { ProductDetailContainerComponent } from './product-detail-container/product-detail-container.component';
+export { ProductListContainerComponent } from './product-list-container/product-list-container.component';
+
+// Re-exports de tipos relacionados
+export type { LoadingState, PaginationState } from '../../../shared/utils/signal.types';

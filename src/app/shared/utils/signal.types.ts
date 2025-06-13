@@ -1,100 +1,164 @@
-import { Signal, WritableSignal, computed } from '@angular/core';
+import { Signal, WritableSignal } from '@angular/core';
 
 /**
- * Tipos para mejorar el trabajo con Signals
+ * Tipos y interfaces para manejo de estado con signals
+ * Optimizados para performance y type safety
  */
 
 /**
- * Estado de carga genérico para operaciones asíncronas
+ * Estado de carga genérico
  */
-export interface LoadingState<T = unknown> {
-  loading: boolean;
-  data: T | null;
+export interface LoadingState<T = any> {
+  isLoading: boolean;
   error: string | null;
+  data?: T;
 }
-
-/**
- * Signal de estado de carga
- */
-export type LoadingSignal<T> = WritableSignal<LoadingState<T>>;
-
-/**
- * Estado base para formularios reactivos
- */
-export interface FormState<T = unknown> {
-  value: T;
-  valid: boolean;
-  dirty: boolean;
-  touched: boolean;
-  errors: Record<string, string> | null;
-}
-
-/**
- * Signal de estado de formulario
- */
-export type FormSignal<T> = WritableSignal<FormState<T>>;
 
 /**
  * Estado de paginación
  */
 export interface PaginationState {
-  page: number;
+  currentPage: number;
   pageSize: number;
-  total: number;
-  totalPages: number;
+  totalItems: number;
+  totalPages?: number;
+  isLoadingMore: boolean;
+  hasMore: boolean;
 }
 
 /**
- * Signal de paginación
+ * Estado de formulario genérico
  */
-export type PaginationSignal = WritableSignal<PaginationState>;
-
-/**
- * Helper para crear un signal de loading state
- */
-export function createLoadingSignal<T>(initialData: T | null = null): LoadingSignal<T> {
-  return signal<LoadingState<T>>({
-    loading: false,
-    data: initialData,
-    error: null,
-  });
+export interface FormState<T = any> {
+  data: T;
+  isValid: boolean;
+  isDirty: boolean;
+  isSubmitting: boolean;
+  errors: Record<string, string>;
 }
 
 /**
- * Helper para crear un signal de form state
+ * Estado de filtros de búsqueda
  */
-export function createFormSignal<T>(initialValue: T): FormSignal<T> {
-  return signal<FormState<T>>({
-    value: initialValue,
-    valid: false,
-    dirty: false,
-    touched: false,
-    errors: null,
-  });
+export interface SearchFiltersState {
+  searchTerm: string;
+  category: string | null;
+  minPrice: number | null;
+  maxPrice: number | null;
+  sortBy: 'price' | 'title' | 'category' | null;
+  sortOrder: 'asc' | 'desc';
 }
 
 /**
- * Helper para crear un signal de paginación
+ * Estado de selección múltiple
  */
-export function createPaginationSignal(pageSize: number = 10): PaginationSignal {
-  return signal<PaginationState>({
-    page: 1,
-    pageSize,
-    total: 0,
-    totalPages: 0,
-  });
+export interface SelectionState<T = any> {
+  selectedItems: T[];
+  isAllSelected: boolean;
+  selectionCount: number;
 }
 
 /**
- * Helper para crear computed que deriva loading state
+ * Helpers para crear estados iniciales
  */
-export function deriveLoadingState<T, R>(
-  source: Signal<LoadingState<T>>,
-  transform: (data: T) => R
-) {
-  return computed(() => {
-    const state = source();
-    if (!state.data) return null;
-    return transform(state.data);
-  });
-}
+export const createLoadingState = <T = any>(initialData?: T): LoadingState<T> => ({
+  isLoading: false,
+  error: null,
+  data: initialData,
+});
+
+export const createPaginationState = (pageSize: number = 10): PaginationState => ({
+  currentPage: 1,
+  pageSize,
+  totalItems: 0,
+  totalPages: 0,
+  isLoadingMore: false,
+  hasMore: true,
+});
+
+export const createFormState = <T = any>(initialData: T): FormState<T> => ({
+  data: initialData,
+  isValid: false,
+  isDirty: false,
+  isSubmitting: false,
+  errors: {},
+});
+
+export const createSearchFiltersState = (): SearchFiltersState => ({
+  searchTerm: '',
+  category: null,
+  minPrice: null,
+  maxPrice: null,
+  sortBy: null,
+  sortOrder: 'asc',
+});
+
+export const createSelectionState = <T = any>(): SelectionState<T> => ({
+  selectedItems: [],
+  isAllSelected: false,
+  selectionCount: 0,
+});
+
+/**
+ * Tipos de utilidad para signals
+ */
+export type ReadonlySignal<T> = Signal<T>;
+export type MutableSignal<T> = WritableSignal<T>;
+
+/**
+ * Helper para actualizar estado de carga
+ */
+export const updateLoadingState = <T>(
+  current: LoadingState<T>,
+  updates: Partial<LoadingState<T>>
+): LoadingState<T> => ({
+  ...current,
+  ...updates,
+});
+
+/**
+ * Helper para actualizar estado de paginación
+ */
+export const updatePaginationState = (
+  current: PaginationState,
+  updates: Partial<PaginationState>
+): PaginationState => ({
+  ...current,
+  ...updates,
+  totalPages:
+    updates.totalItems && updates.pageSize
+      ? Math.ceil(updates.totalItems / updates.pageSize)
+      : current.totalPages,
+});
+
+/**
+ * Helper para actualizar estado de formulario
+ */
+export const updateFormState = <T>(
+  current: FormState<T>,
+  updates: Partial<FormState<T>>
+): FormState<T> => ({
+  ...current,
+  ...updates,
+});
+
+/**
+ * Helper para resetear estado de carga
+ */
+export const resetLoadingState = <T>(data?: T): LoadingState<T> => ({
+  isLoading: false,
+  error: null,
+  data,
+});
+
+/**
+ * Helper para resetear estado de paginación
+ */
+export const resetPaginationState = (pageSize: number = 10): PaginationState => ({
+  currentPage: 1,
+  pageSize,
+  totalItems: 0,
+  totalPages: 0,
+  isLoadingMore: false,
+  hasMore: true,
+});
