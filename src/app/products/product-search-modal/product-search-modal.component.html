@@ -1,0 +1,21 @@
+<div class="modal" *ngIf="visible">
+  <div class="modal-content">
+    <h2>Búsqueda de producto por ID</h2>
+    <form (ngSubmit)="onSearch()" autocomplete="off">
+      <input type="number" [(ngModel)]="productId" name="productId" min="1" placeholder="ID del producto" [disabled]="loading" required />
+      <button type="submit" [disabled]="loading">Buscar</button>
+      <button type="button" (click)="onClose()">Cerrar</button>
+    </form>
+
+    <div *ngIf="loading" class="loading">Buscando producto...</div>
+    <div *ngIf="error" class="error">{{ error }}</div>
+
+    <div *ngIf="product" class="card">
+      <img [src]="product.image" alt="{{ product.title }}" width="100" />
+      <h3>{{ product.title }}</h3>
+      <p><strong>Precio:</strong> {{ product.price | currency }}</p>
+      <p><strong>Categoría:</strong> {{ product.category }}</p>
+      <p>{{ product.description }}</p>
+    </div>
+  </div>
+</div>

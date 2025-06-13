@@ -3,10 +3,11 @@ import { CommonModule } from '@angular/common';
 import { Product, ProductService } from '../product.service';
 // import { ProductFormComponent } from '../product-form/product-form.component';
 import { ProductModalComponent } from '../product-modal/product-modal.component';
+import { ProductSearchModalComponent } from '../product-search-modal/product-search-modal.component';
 
 @Component({
   selector: 'app-product-list',
-  imports: [CommonModule, ProductModalComponent],
+  imports: [CommonModule, ProductModalComponent, ProductSearchModalComponent],
   templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.scss'],
 })
@@ -20,6 +21,12 @@ export class ProductListComponent {
   showForm = false;
   editingProduct: Product | null = null;
   formLoading = false;
+
+  // Estado para búsqueda por ID
+  showSearchModal = false;
+  searchLoading = false;
+  searchedProduct: Product | null = null;
+  searchError: string | null = null;
 
   constructor(private productService: ProductService) {
     this.loadProducts();
@@ -110,6 +117,39 @@ export class ProductListComponent {
         }
       });
     }
+  }
+
+  // Mostrar el modal de búsqueda
+  onShowSearchModal() {
+    this.showSearchModal = true;
+    this.searchedProduct = null;
+    this.searchError = null;
+    this.searchLoading = false;
+  }
+
+  // Buscar producto por ID
+  onSearchProductById(id: number) {
+    this.searchedProduct = null;
+    this.searchError = null;
+    this.searchLoading = true;
+    this.productService.getProduct(id).subscribe({
+      next: (product) => {
+        this.searchedProduct = product;
+        this.searchLoading = false;
+      },
+      error: (err) => {
+        this.searchError = err?.message || 'Producto no encontrado';
+        this.searchLoading = false;
+      }
+    });
+  }
+
+  // Cerrar el modal de búsqueda
+  onCloseSearchModal() {
+    this.showSearchModal = false;
+    this.searchedProduct = null;
+    this.searchError = null;
+    this.searchLoading = false;
   }
 
 }

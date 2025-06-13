@@ -1,6 +1,7 @@
 @if (!loading) {
   @if (!showForm) {
     <button (click)="onAdd()">Agregar producto</button>
+    <button (click)="onShowSearchModal()">Buscar producto por ID</button>
   }
 }
 
@@ -16,6 +17,15 @@
   [loading]="formLoading"
   (save)="onSave($event)"
   (cancel)="onCancelForm()"
+/>
+
+<app-product-search-modal
+  [visible]="showSearchModal"
+  [loading]="searchLoading"
+  [product]="searchedProduct"
+  [error]="searchError"
+  (search)="onSearchProductById($event)"
+  (close)="onCloseSearchModal()"
 />
 
 @if (loading) {
