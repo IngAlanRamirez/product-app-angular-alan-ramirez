@@ -1,56 +1,38 @@
-import {
-  fakeAsync,
-  tick,
-  flushMicrotasks,
-  ComponentFixture,
-  TestBed,
-} from '@angular/core/testing';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatTableModule } from '@angular/material/table';
+import { signal } from '@angular/core';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-import { ProductModalComponent } from '../product-modal/product-modal.component';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTableModule } from '@angular/material/table';
+import { of } from 'rxjs';
+import { Product } from '../../domain/models/product.model';
+import { ProductsStore } from '../../shared/store/products.store';
 import { ConfirmDialogComponent } from '../components/confirm-dialog/confirm-dialog.component';
+import { ProductModalComponent } from '../product-modal/product-modal.component';
 import { ProductSearchModalComponent } from '../product-search-modal/product-search-modal.component';
 import { ProductListComponent } from './product-list.component';
-import { GetProductsUseCase } from '../../domain/use-cases/get-products.usecase';
-import { AddProductUseCase } from '../../domain/use-cases/add-product.usecase';
-import { UpdateProductUseCase } from '../../domain/use-cases/update-product.usecase';
-import { DeleteProductUseCase } from '../../domain/use-cases/delete-product.usecase';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatDialog } from '@angular/material/dialog';
-import { of, throwError } from 'rxjs';
-import { Product } from '../../domain/models/product.model';
 
 describe('ProductListComponent', () => {
   let component: ProductListComponent;
   let fixture: ComponentFixture<ProductListComponent>;
-  let getProductsUseCaseSpy: jasmine.SpyObj<GetProductsUseCase>;
-  let addProductUseCaseSpy: jasmine.SpyObj<AddProductUseCase>;
-  let updateProductUseCaseSpy: jasmine.SpyObj<UpdateProductUseCase>;
-  let deleteProductUseCaseSpy: jasmine.SpyObj<DeleteProductUseCase>;
+  let productsStoreSpy: jasmine.SpyObj<ProductsStore>;
   let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
   let dialogSpy: jasmine.SpyObj<MatDialog>;
 
   beforeEach(() => {
-    getProductsUseCaseSpy = jasmine.createSpyObj('GetProductsUseCase', [
-      'execute',
-    ]);
-    addProductUseCaseSpy = jasmine.createSpyObj('AddProductUseCase', [
-      'execute',
-    ]);
-    updateProductUseCaseSpy = jasmine.createSpyObj('UpdateProductUseCase', [
-      'execute',
-    ]);
-    deleteProductUseCaseSpy = jasmine.createSpyObj('DeleteProductUseCase', [
-      'execute',
-    ]);
+    // Crear mocks
+    productsStoreSpy = jasmine.createSpyObj('ProductsStore', ['loadProducts'], {
+      products: signal([]),
+      isLoading: signal(false),
+      error: signal(null),
+    });
+
     snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
     dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
 
-    getProductsUseCaseSpy.execute.and.returnValue(of([]));
+    // Configurar valores por defecto
     snackBarSpy.open.and.returnValue({} as any);
     dialogSpy.open.and.returnValue({ afterClosed: () => of(undefined) } as any);
 
@@ -68,10 +50,7 @@ describe('ProductListComponent', () => {
         MatDialogModule,
       ],
       providers: [
-        { provide: GetProductsUseCase, useValue: getProductsUseCaseSpy },
-        { provide: AddProductUseCase, useValue: addProductUseCaseSpy },
-        { provide: UpdateProductUseCase, useValue: updateProductUseCaseSpy },
-        { provide: DeleteProductUseCase, useValue: deleteProductUseCaseSpy },
+        { provide: ProductsStore, useValue: productsStoreSpy },
         { provide: MatSnackBar, useValue: snackBarSpy },
         { provide: MatDialog, useValue: dialogSpy },
       ],
@@ -79,124 +58,19 @@ describe('ProductListComponent', () => {
 
     fixture = TestBed.createComponent(ProductListComponent);
     component = fixture.componentInstance;
-    component.autoLoad = false;
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('debe cargar productos correctamente', fakeAsync(() => {
-    const productos: Product[] = [
-      {
-        id: 1,
-        title: 'Prod',
-        price: 10,
-        description: '',
-        category: '',
-        image: '',
-      },
-    ];
-    getProductsUseCaseSpy.execute.and.returnValue(of(productos));
-    component.loadProducts();
-    tick();
-    expect(component.products).toEqual(productos);
-    expect(component.loading).toBeFalse();
-  }));
-
-  it('debe manejar error al cargar productos', fakeAsync(() => {
-    getProductsUseCaseSpy.execute.and.returnValue(
-      throwError(() => new Error('fail'))
-    );
-    component.loadProducts();
-    tick();
-    expect(component.error).toContain('Error');
-    expect(snackBarSpy.open).toHaveBeenCalled();
-    expect(component.loading).toBeFalse();
-  }));
-
-  it('debe eliminar producto tras confirmación', fakeAsync(() => {
-    const producto: Product = {
-      id: 1,
-      title: 'Prod',
-      price: 10,
-      description: '',
-      category: '',
-      image: '',
-    };
-    dialogSpy.open.and.returnValue({ afterClosed: () => of(true) } as any);
-    deleteProductUseCaseSpy.execute.and.returnValue(of(undefined));
-    component.products = [producto];
-    component.onDelete(producto);
-    tick();
-    expect(component.products.length).toBe(0);
-    expect(snackBarSpy.open).toHaveBeenCalled();
-  }));
-
-  it('no elimina producto si no se confirma', fakeAsync(() => {
-    const producto: Product = {
-      id: 1,
-      title: 'Prod',
-      price: 10,
-      description: '',
-      category: '',
-      image: '',
-    };
-    dialogSpy.open.and.returnValue({ afterClosed: () => of(false) } as any);
-    component.products = [producto];
-    component.onDelete(producto);
-    tick();
-    expect(component.products.length).toBe(1);
-    expect(deleteProductUseCaseSpy.execute).not.toHaveBeenCalled();
-  }));
-
-  it('debe manejar error al eliminar producto', fakeAsync(() => {
-    const producto: Product = {
-      id: 1,
-      title: 'Prod',
-      price: 10,
-      description: '',
-      category: '',
-      image: '',
-    };
-    dialogSpy.open.and.returnValue({ afterClosed: () => of(true) } as any);
-    deleteProductUseCaseSpy.execute.and.returnValue(
-      throwError(() => new Error('fail'))
-    );
-    component.products = [producto];
-    component.onDelete(producto);
-    tick();
-    expect(snackBarSpy.open).toHaveBeenCalled();
-    expect(component.products.length).toBe(1);
-  }));
-
-  it('debe editar un producto', () => {
-    const producto: Product = {
-      id: 1,
-      title: 'Prod',
-      price: 10,
-      description: '',
-      category: '',
-      image: '',
-    };
-    component.onEdit(producto);
-    expect(component.editingProduct).toEqual(producto);
-    expect(component.showForm).toBeTrue();
+  it('debe llamar a loadProducts en el constructor', () => {
+    expect(productsStoreSpy.loadProducts).toHaveBeenCalled();
   });
 
-  it('debe cancelar la edición', () => {
-    component.editingProduct = {
-      id: 1,
-      title: 'Prod',
-      price: 10,
-      description: '',
-      category: '',
-      image: '',
-    };
-    component.showForm = true;
-    component.onCancelForm();
-    expect(component.editingProduct).toBeNull();
-    expect(component.showForm).toBeFalse();
+  it('debe llamar a loadProducts con refresh en loadProducts()', () => {
+    component.loadProducts();
+    expect(productsStoreSpy.loadProducts).toHaveBeenCalledWith(true);
   });
 
   it('debe abrir formulario para agregar producto', () => {
@@ -205,81 +79,120 @@ describe('ProductListComponent', () => {
     expect(component.showForm).toBeTrue();
   });
 
-  it('debe guardar un producto nuevo', fakeAsync(() => {
-    const producto: Product = {
+  it('debe configurar producto para edición', () => {
+    const producto = Product.fromData({
+      id: 1,
+      title: 'Test',
+      price: 10,
+      description: 'desc',
+      category: 'cat',
+      image: 'img',
+    });
+    component.onEdit(producto);
+    expect(component.editingProduct).toBeTruthy();
+    expect(component.showForm).toBeTrue();
+  });
+
+  it('debe cancelar la edición', () => {
+    component.editingProduct = Product.fromData({
+      id: 1,
+      title: 'Test',
+      price: 10,
+      description: 'desc',
+      category: 'cat',
+      image: 'img',
+    });
+    component.showForm = true;
+    component.onCancelForm();
+    expect(component.editingProduct).toBeNull();
+    expect(component.showForm).toBeFalse();
+  });
+
+  it('debe mostrar mensaje de función pendiente al guardar producto nuevo', () => {
+    const producto = Product.fromData({
+      id: 0,
       title: 'Nuevo',
       price: 10,
-      description: '',
-      category: '',
-      image: '',
-    } as Product;
-    const productoConId = { ...producto, id: 2 };
-    addProductUseCaseSpy.execute.and.returnValue(of(productoConId));
+      description: 'desc',
+      category: 'cat',
+      image: 'img',
+    });
     component.editingProduct = null;
     component.onSave(producto);
-    tick();
-    expect(component.products.some((p) => p.title === 'Nuevo')).toBeTrue();
-    expect(snackBarSpy.open).toHaveBeenCalled();
+    expect(snackBarSpy.open).toHaveBeenCalledWith(
+      'Función de creación pendiente de implementar',
+      'Cerrar',
+      { duration: 3000, panelClass: 'snackbar-info' }
+    );
     expect(component.showForm).toBeFalse();
     expect(component.editingProduct).toBeNull();
-  }));
+  });
 
-  it('debe manejar error al guardar producto nuevo', fakeAsync(() => {
-    addProductUseCaseSpy.execute.and.returnValue(
-      throwError(() => new Error('fail'))
-    );
-    component.editingProduct = null;
-    component.onSave({
-      title: 'Nuevo',
-      price: 10,
-      description: '',
-      category: '',
-      image: '',
-    } as Product);
-    tick();
-    expect(snackBarSpy.open).toHaveBeenCalled();
-    expect(component.formLoading).toBeFalse();
-  }));
-
-  it('debe actualizar un producto existente', fakeAsync(() => {
-    const producto: Product = {
+  it('debe mostrar mensaje de función pendiente al editar producto', () => {
+    const producto = Product.fromData({
       id: 1,
-      title: 'Prod',
+      title: 'Test',
       price: 10,
-      description: '',
-      category: '',
-      image: '',
-    };
-    const productoEditado = { ...producto, title: 'Editado' };
-    updateProductUseCaseSpy.execute.and.returnValue(of(productoEditado));
-    component.products = [producto];
-    component.editingProduct = producto;
-    component.onSave(productoEditado);
-    tick();
-    expect(component.products[0].title).toBe('Editado');
-    expect(snackBarSpy.open).toHaveBeenCalled();
-    expect(component.showForm).toBeFalse();
-    expect(component.editingProduct).toBeNull();
-  }));
-
-  it('debe manejar error al actualizar producto', fakeAsync(() => {
-    const producto: Product = {
-      id: 1,
-      title: 'Prod',
-      price: 10,
-      description: '',
-      category: '',
-      image: '',
-    };
-    updateProductUseCaseSpy.execute.and.returnValue(
-      throwError(() => new Error('fail'))
-    );
-    component.products = [producto];
+      description: 'desc',
+      category: 'cat',
+      image: 'img',
+    });
     component.editingProduct = producto;
     component.onSave(producto);
+    expect(snackBarSpy.open).toHaveBeenCalledWith(
+      'Función de edición pendiente de implementar',
+      'Cerrar',
+      { duration: 3000, panelClass: 'snackbar-info' }
+    );
+    expect(component.showForm).toBeFalse();
+    expect(component.editingProduct).toBeNull();
+  });
+
+  it('debe abrir diálogo de confirmación para eliminar', fakeAsync(() => {
+    const producto = Product.fromData({
+      id: 1,
+      title: 'Test',
+      price: 10,
+      description: 'desc',
+      category: 'cat',
+      image: 'img',
+    });
+    dialogSpy.open.and.returnValue({ afterClosed: () => of(true) } as any);
+
+    component.onDelete(producto);
     tick();
-    expect(snackBarSpy.open).toHaveBeenCalled();
-    expect(component.formLoading).toBeFalse();
+
+    expect(dialogSpy.open).toHaveBeenCalledWith(ConfirmDialogComponent, {
+      width: '350px',
+      data: {
+        title: 'Eliminar producto',
+        message: `¿Seguro que deseas eliminar el producto "${producto.title}"?`,
+      },
+    });
+    expect(snackBarSpy.open).toHaveBeenCalledWith(
+      'Función de eliminación pendiente de implementar',
+      'Cerrar',
+      { duration: 3000, panelClass: 'snackbar-info' }
+    );
+  }));
+
+  it('no debe eliminar si no se confirma', fakeAsync(() => {
+    const producto = Product.fromData({
+      id: 1,
+      title: 'Test',
+      price: 10,
+      description: 'desc',
+      category: 'cat',
+      image: 'img',
+    });
+    dialogSpy.open.and.returnValue({ afterClosed: () => of(false) } as any);
+
+    component.onDelete(producto);
+    tick();
+
+    expect(dialogSpy.open).toHaveBeenCalled();
+    // No debe mostrar el snackbar de eliminación
+    expect(snackBarSpy.open).not.toHaveBeenCalled();
   }));
 
   it('debe abrir el modal de búsqueda', () => {
@@ -292,64 +205,38 @@ describe('ProductListComponent', () => {
     });
   });
 
-  it('no debe guardar si producto es nulo en onSave', () => {
+  it('no debe guardar si producto es nulo', () => {
     component.formLoading = true;
     component.onSave(null as any);
     expect(component.formLoading).toBeFalse();
-    expect(addProductUseCaseSpy.execute).not.toHaveBeenCalled();
-    expect(updateProductUseCaseSpy.execute).not.toHaveBeenCalled();
   });
 
   it('no debe guardar si producto es objeto vacío', () => {
     component.formLoading = true;
     component.onSave({} as Product);
     expect(component.formLoading).toBeFalse();
-    expect(addProductUseCaseSpy.execute).not.toHaveBeenCalled();
-    expect(updateProductUseCaseSpy.execute).not.toHaveBeenCalled();
   });
 
   it('no debe eliminar si producto es nulo', () => {
     component.onDelete(null as any);
     expect(dialogSpy.open).not.toHaveBeenCalled();
-    expect(deleteProductUseCaseSpy.execute).not.toHaveBeenCalled();
   });
 
   it('no debe eliminar si producto no tiene id', () => {
     const producto = { title: 'Test', price: 10 } as Product;
     component.onDelete(producto);
     expect(dialogSpy.open).not.toHaveBeenCalled();
-    expect(deleteProductUseCaseSpy.execute).not.toHaveBeenCalled();
   });
 
   it('no debe eliminar si id no es número', () => {
     const producto = { id: 'invalid', title: 'Test', price: 10 } as any;
     component.onDelete(producto);
     expect(dialogSpy.open).not.toHaveBeenCalled();
-    expect(deleteProductUseCaseSpy.execute).not.toHaveBeenCalled();
   });
 
-  it('debe inicializar con autoLoad true por defecto', () => {
-    const newComponent = new ProductListComponent(
-      getProductsUseCaseSpy,
-      addProductUseCaseSpy,
-      updateProductUseCaseSpy,
-      deleteProductUseCaseSpy,
-      snackBarSpy,
-      dialogSpy
-    );
-    expect(newComponent.autoLoad).toBeTrue();
-  });
-
-  it('debe cargar productos automáticamente si autoLoad es true', () => {
-    spyOn(ProductListComponent.prototype, 'loadProducts');
-    new ProductListComponent(
-      getProductsUseCaseSpy,
-      addProductUseCaseSpy,
-      updateProductUseCaseSpy,
-      deleteProductUseCaseSpy,
-      snackBarSpy,
-      dialogSpy
-    );
-    expect(ProductListComponent.prototype.loadProducts).toHaveBeenCalled();
+  it('debe exponer signals del store', () => {
+    expect(component.products).toBeDefined();
+    expect(component.loading).toBeDefined();
+    expect(component.error).toBeDefined();
   });
 });

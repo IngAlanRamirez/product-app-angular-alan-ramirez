@@ -4,6 +4,7 @@ import {
   Component,
   computed,
   EventEmitter,
+  inject,
   Input,
   Output,
   signal,
@@ -12,174 +13,193 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
+import { Router } from '@angular/router';
 
 import { Product } from '../../../domain/models/product.model';
+import { UIStore } from '../../store/ui.store';
 
 /**
- * Componente puro para mostrar una tarjeta de producto
+ * Componente de tarjeta de producto avanzado
  *
  * Características:
- * - OnPush para máxima performance
- * - Signals para reactividad optimizada
- * - Inputs inmutables
- * - Outputs tipados
- * - Lazy loading de imágenes
+ * - Diseño moderno con imagen, precio y acciones
+ * - Estados interactivos (hover, loading, disabled)
+ * - Integración con favoritos y carrito
+ * - Badges de descuento y categoría
+ * - Animaciones fluidas
+ * - Responsive design
+ * - Accesibilidad completa
  */
 @Component({
   selector: 'app-product-card',
   standalone: true,
   imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, MatChipsModule],
   template: `
-    <mat-card class="product-card" [class.loading]="isLoading()">
-      <!-- Imagen del producto con lazy loading -->
+    <article
+      class="product-card"
+      [class.loading]="loading"
+      [class.disabled]="disabled"
+      [class.favorite]="isFavorite"
+      [attr.aria-label]="'Producto: ' + product.title"
+      role="article"
+    >
+      <!-- Imagen del producto -->
       <div class="product-image-container">
         <img
-          mat-card-image
-          [src]="productImage()"
-          [alt]="productTitle()"
-          [loading]="'lazy'"
-          (load)="onImageLoad()"
-          (error)="onImageError()"
+          [src]="product.image"
+          [alt]="product.title"
           class="product-image"
           [class.loaded]="imageLoaded()"
+          (load)="onImageLoad()"
+          (error)="onImageError()"
+          loading="lazy"
         />
 
-        <!-- Overlay de loading -->
-        <div class="image-loading-overlay" *ngIf="!imageLoaded()">
-          <mat-icon>image</mat-icon>
+        <!-- Overlay de carga de imagen -->
+        <div class="image-skeleton" *ngIf="!imageLoaded()">
+          <div class="skeleton-shimmer"></div>
         </div>
 
-        <!-- Badge de precio -->
-        <div class="price-badge" [class.expensive]="isExpensive()">
-          {{ formattedPrice() }}
+        <!-- Badge de categoría -->
+        <div class="category-badge">
+          {{ getCategoryDisplay() }}
+        </div>
+
+        <!-- Badge de descuento (si aplica) -->
+        <div class="discount-badge" *ngIf="discountPercentage > 0">-{{ discountPercentage }}%</div>
+
+        <!-- Botón de favorito -->
+        <button
+          type="button"
+          class="favorite-btn"
+          [class.active]="isFavorite"
+          (click)="onFavoriteClick($event)"
+          [attr.aria-label]="favoriteLabel"
+          [disabled]="loading"
+        >
+          {{ isFavorite ? '❤️' : '🤍' }}
+        </button>
+
+        <!-- Overlay de acciones rápidas -->
+        <div class="quick-actions">
+          <button
+            type="button"
+            class="quick-action-btn"
+            (click)="onQuickView($event)"
+            aria-label="Vista rápida"
+            [disabled]="loading"
+          >
+            👁️
+          </button>
+          <button
+            type="button"
+            class="quick-action-btn"
+            (click)="onAddToCart($event)"
+            aria-label="Agregar al carrito"
+            [disabled]="loading"
+          >
+            🛒
+          </button>
         </div>
       </div>
 
-      <!-- Contenido de la tarjeta -->
-      <mat-card-header>
-        <mat-card-title class="product-title" [title]="productTitle()">
-          {{ truncatedTitle() }}
-        </mat-card-title>
+      <!-- Información del producto -->
+      <div class="product-info">
+        <!-- Título -->
+        <h3 class="product-title">
+          <button type="button" class="title-link" (click)="onTitleClick()" [disabled]="loading">
+            {{ getTruncatedTitle() }}
+          </button>
+        </h3>
 
-        <mat-card-subtitle>
-          <mat-chip class="category-chip">
-            {{ capitalizedCategory() }}
-          </mat-chip>
-        </mat-card-subtitle>
-      </mat-card-header>
+        <!-- Precio -->
+        <div class="product-pricing">
+          <span class="current-price">
+            {{ formatPrice(product.price) }}
+          </span>
+          <span class="original-price" *ngIf="originalPrice > product.price">
+            {{ formatPrice(originalPrice) }}
+          </span>
+        </div>
 
-      <mat-card-content>
-        <p class="product-description" *ngIf="hasDescription()">
-          {{ truncatedDescription() }}
+        <!-- Rating (simulado) -->
+        <div class="product-rating">
+          <div class="stars">
+            <span *ngFor="let star of getStars()" class="star" [class.filled]="star">⭐</span>
+          </div>
+          <span class="rating-text">({{ getRatingCount() }})</span>
+        </div>
+
+        <!-- Descripción corta -->
+        <p class="product-description" *ngIf="showDescription">
+          {{ getTruncatedDescription() }}
         </p>
 
-        <!-- Metadata del producto -->
-        <div class="product-metadata">
-          <span class="product-id">ID: {{ productId() }}</span>
-          <span class="product-slug">{{ productSlug() }}</span>
+        <!-- Acciones principales -->
+        <div class="product-actions">
+          <button
+            type="button"
+            class="action-btn primary"
+            (click)="onViewDetails()"
+            [disabled]="loading"
+          >
+            <span *ngIf="!loading">Ver Detalles</span>
+            <span *ngIf="loading" class="loading-spinner">⏳</span>
+          </button>
+
+          <button
+            type="button"
+            class="action-btn secondary"
+            (click)="onAddToCart($event)"
+            [disabled]="loading"
+          >
+            <span *ngIf="!loading">Agregar</span>
+            <span *ngIf="loading" class="loading-spinner">⏳</span>
+          </button>
         </div>
-      </mat-card-content>
+      </div>
 
-      <!-- Acciones -->
-      <mat-card-actions align="end">
-        <button mat-button color="primary" (click)="onViewDetails()" [disabled]="isLoading()">
-          <mat-icon>visibility</mat-icon>
-          Ver Detalles
-        </button>
-
-        <button mat-raised-button color="accent" (click)="onAddToCart()" [disabled]="isLoading()">
-          <mat-icon>add_shopping_cart</mat-icon>
-          Agregar
-        </button>
-      </mat-card-actions>
-    </mat-card>
+      <!-- Indicador de carga general -->
+      <div class="card-loading-overlay" *ngIf="loading">
+        <div class="loading-spinner-large">⏳</div>
+      </div>
+    </article>
   `,
   styleUrls: ['./product-card.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductCardComponent {
-  // Inputs inmutables
-  @Input({ required: true })
-  set product(value: Product | null) {
-    this._product.set(value);
-  }
+  // Inputs
+  @Input({ required: true }) product!: Product;
+  @Input() loading = false;
+  @Input() disabled = false;
+  @Input() isFavorite = false;
+  @Input() showDescription = true;
+  @Input() discountPercentage = 0;
+  @Input() originalPrice = 0;
 
-  @Input()
-  set loading(value: boolean) {
-    this._loading.set(value);
-  }
-
-  @Input()
-  set maxTitleLength(value: number) {
-    this._maxTitleLength.set(value);
-  }
-
-  @Input()
-  set maxDescriptionLength(value: number) {
-    this._maxDescriptionLength.set(value);
-  }
-
-  // Outputs tipados
-  @Output() viewDetails = new EventEmitter<Product>();
+  // Outputs
+  @Output() favoriteToggle = new EventEmitter<Product>();
   @Output() addToCart = new EventEmitter<Product>();
-  @Output() imageLoadError = new EventEmitter<string>();
+  @Output() viewDetails = new EventEmitter<Product>();
+  @Output() quickView = new EventEmitter<Product>();
 
-  // Signals internos
-  private readonly _product = signal<Product | null>(null);
-  private readonly _loading = signal(false);
-  private readonly _maxTitleLength = signal(50);
-  private readonly _maxDescriptionLength = signal(100);
+  // Inyección de dependencias
+  private readonly router = inject(Router);
+  private readonly uiStore = inject(UIStore);
+
+  // Estado local
   private readonly _imageLoaded = signal(false);
 
-  // Computed signals para datos derivados
-  readonly productId = computed(() => this._product()?.id ?? 0);
-  readonly productTitle = computed(() => this._product()?.title ?? '');
-  readonly productImage = computed(() => this._product()?.image ?? '');
-  readonly productSlug = computed(() => this._product()?.getSlug() ?? '');
-  readonly isLoading = computed(() => this._loading());
+  // Computed signals
   readonly imageLoaded = computed(() => this._imageLoaded());
 
-  readonly truncatedTitle = computed(() => {
-    const product = this._product();
-    const maxLength = this._maxTitleLength();
-    return product?.getTruncatedTitle(maxLength) ?? '';
-  });
-
-  readonly truncatedDescription = computed(() => {
-    const product = this._product();
-    const description = product?.description;
-    const maxLength = this._maxDescriptionLength();
-
-    if (!description) return '';
-
-    return description.length > maxLength
-      ? `${description.substring(0, maxLength)}...`
-      : description;
-  });
-
-  readonly hasDescription = computed(() => {
-    const product = this._product();
-    return !!product?.description?.trim();
-  });
-
-  readonly capitalizedCategory = computed(() => {
-    const product = this._product();
-    const category = product?.category ?? '';
-    return category.charAt(0).toUpperCase() + category.slice(1);
-  });
-
-  readonly formattedPrice = computed(() => {
-    const product = this._product();
-    return product?.priceVO.format() ?? '$0.00';
-  });
-
-  readonly isExpensive = computed(() => {
-    const product = this._product();
-    return product?.isExpensive() ?? false;
-  });
+  get favoriteLabel(): string {
+    return this.isFavorite ? 'Quitar de favoritos' : 'Agregar a favoritos';
+  }
 
   /**
-   * Maneja el evento de carga de imagen
+   * Maneja la carga exitosa de la imagen
    */
   onImageLoad(): void {
     this._imageLoaded.set(true);
@@ -189,30 +209,123 @@ export class ProductCardComponent {
    * Maneja el error de carga de imagen
    */
   onImageError(): void {
-    this._imageLoaded.set(false);
-    const product = this._product();
-    if (product) {
-      this.imageLoadError.emit(product.image);
-    }
+    // Aquí podrías establecer una imagen por defecto
+    this._imageLoaded.set(true);
   }
 
   /**
-   * Emite evento para ver detalles
+   * Obtiene el nombre de categoría formateado
+   */
+  getCategoryDisplay(): string {
+    const category = this.product.category;
+    return category.charAt(0).toUpperCase() + category.slice(1);
+  }
+
+  /**
+   * Obtiene el título truncado
+   */
+  getTruncatedTitle(): string {
+    return this.product.getTruncatedTitle(50);
+  }
+
+  /**
+   * Obtiene la descripción truncada
+   */
+  getTruncatedDescription(): string {
+    const description = this.product.description;
+    if (!description) return '';
+
+    return description.length > 100 ? description.substring(0, 100) + '...' : description;
+  }
+
+  /**
+   * Formatea el precio
+   */
+  formatPrice(price: number): string {
+    return new Intl.NumberFormat('es-ES', {
+      style: 'currency',
+      currency: 'EUR',
+    }).format(price);
+  }
+
+  /**
+   * Genera estrellas para rating (simulado)
+   */
+  getStars(): boolean[] {
+    // Simulamos un rating basado en el ID del producto
+    const rating = ((this.product.id || 1) % 5) + 1;
+    return Array.from({ length: 5 }, (_, i) => i < rating);
+  }
+
+  /**
+   * Obtiene el número de reseñas (simulado)
+   */
+  getRatingCount(): number {
+    // Simulamos el número de reseñas basado en el precio
+    return Math.floor(this.product.price * 10) + 50;
+  }
+
+  /**
+   * Maneja el click en favorito
+   */
+  onFavoriteClick(event: Event): void {
+    event.stopPropagation();
+    this.favoriteToggle.emit(this.product);
+
+    // Mostrar notificación
+    const message = this.isFavorite
+      ? 'Producto agregado a favoritos'
+      : 'Producto removido de favoritos';
+
+    this.uiStore.addNotification({
+      type: 'success',
+      title: 'Favoritos',
+      message,
+      duration: 2000,
+    });
+  }
+
+  /**
+   * Maneja el click en agregar al carrito
+   */
+  onAddToCart(event: Event): void {
+    event.stopPropagation();
+    this.addToCart.emit(this.product);
+
+    // Mostrar notificación
+    this.uiStore.addNotification({
+      type: 'success',
+      title: 'Carrito',
+      message: `${this.product.title} agregado al carrito`,
+      duration: 2000,
+    });
+  }
+
+  /**
+   * Maneja el click en vista rápida
+   */
+  onQuickView(event: Event): void {
+    event.stopPropagation();
+    this.quickView.emit(this.product);
+  }
+
+  /**
+   * Maneja el click en el título
+   */
+  onTitleClick(): void {
+    this.onViewDetails();
+  }
+
+  /**
+   * Maneja la navegación a detalles
    */
   onViewDetails(): void {
-    const product = this._product();
-    if (product && !this.isLoading()) {
-      this.viewDetails.emit(product);
-    }
-  }
+    this.viewDetails.emit(this.product);
 
-  /**
-   * Emite evento para agregar al carrito
-   */
-  onAddToCart(): void {
-    const product = this._product();
-    if (product && !this.isLoading()) {
-      this.addToCart.emit(product);
+    // Navegar a la página de detalles
+    const productId = this.product.id;
+    if (productId) {
+      this.router.navigate(['/products', productId]);
     }
   }
 }

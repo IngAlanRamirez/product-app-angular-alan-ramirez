@@ -1,12 +1,19 @@
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { ApplicationConfig, importProvidersFrom } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, InjectionToken } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { PreloadAllModules, provideRouter, withPreloading } from '@angular/router';
 
 import { routes } from './app.routes';
-import { PRODUCT_REPOSITORY_TOKEN } from './domain/use-cases/get-products.use-case';
+import { ProductRepositoryInterface } from './domain/repositories/product.repository.interface';
 import { ProductHttpRepository } from './infrastructure/repositories/product-http.repository';
+
+/**
+ * Token de inyección para el repositorio de productos
+ */
+export const PRODUCT_REPOSITORY_TOKEN = new InjectionToken<ProductRepositoryInterface>(
+  'ProductRepositoryInterface'
+);
 
 /**
  * Configuración de la aplicación Angular 19
@@ -31,7 +38,7 @@ export const appConfig: ApplicationConfig = {
     // Importar módulo de animaciones para compatibilidad
     importProvidersFrom(BrowserAnimationsModule),
 
-    // Configuración de inyección de dependencias
+    // Repositorio de productos
     {
       provide: PRODUCT_REPOSITORY_TOKEN,
       useClass: ProductHttpRepository,

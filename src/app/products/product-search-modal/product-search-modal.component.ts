@@ -1,15 +1,14 @@
-import { Component, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
+import { Component, Inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Product } from '../../domain/models/product.model';
-import { GetProductByIdUseCase } from '../../domain/use-cases/get-product-by-id.usecase';
+import { GetProductByIdUseCase } from '../../domain/use-cases/get-product-by-id.use-case';
 
 @Component({
   selector: 'app-product-search-modal',
@@ -22,10 +21,10 @@ import { GetProductByIdUseCase } from '../../domain/use-cases/get-product-by-id.
     MatInputModule,
     MatButtonModule,
     MatCardModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
   ],
   templateUrl: './product-search-modal.component.html',
-  styleUrls: ['./product-search-modal.component.scss']
+  styleUrls: ['./product-search-modal.component.scss'],
 })
 export class ProductSearchModalComponent {
   productId: string = '';
@@ -50,17 +49,17 @@ export class ProductSearchModalComponent {
     this.error = null;
     this.searched = false;
     this.getProductByIdUseCase.execute(+this.productId).subscribe({
-      next: (prod) => {
+      next: prod => {
         this.product = prod;
         this.loading = false;
         this.searched = true;
       },
-      error: (err) => {
+      error: err => {
         this.product = null;
         this.loading = false;
         this.searched = true;
         this.error = 'No se encontraron coincidencias para el ID ingresado';
-      }
+      },
     });
   }
 

@@ -1,12 +1,8 @@
 import { Inject, Injectable } from '@angular/core';
 import { catchError, map, Observable, of, shareReplay, tap } from 'rxjs';
+import { PRODUCT_REPOSITORY_TOKEN } from '../../app.config';
 import { Product } from '../models/product.model';
 import { ProductRepositoryInterface } from '../repositories/product.repository.interface';
-
-/**
- * Token de inyección para el repositorio de productos
- */
-export const PRODUCT_REPOSITORY_TOKEN = 'PRODUCT_REPOSITORY_TOKEN';
 
 /**
  * Caso de uso para obtener productos

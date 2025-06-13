@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@angular/core';
 import { catchError, map, Observable, of, shareReplay, tap, throwError } from 'rxjs';
+import { PRODUCT_REPOSITORY_TOKEN } from '../../app.config';
 import { Product } from '../models/product.model';
 import { ProductRepositoryInterface } from '../repositories/product.repository.interface';
-import { PRODUCT_REPOSITORY_TOKEN } from './get-products.use-case';
 
 /**
  * Caso de uso para obtener un producto por ID

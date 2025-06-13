@@ -77,11 +77,14 @@ import { ProductCardComponent } from '../product-card/product-card.component';
             <app-product-card
               [product]="product"
               [loading]="isProductLoading(product.id!)"
-              [maxTitleLength]="_maxTitleLength()"
-              [maxDescriptionLength]="_maxDescriptionLength()"
+              [isFavorite]="false"
+              [showDescription]="true"
+              [discountPercentage]="0"
+              [originalPrice]="0"
               (viewDetails)="onProductViewDetails($event)"
               (addToCart)="onProductAddToCart($event)"
-              (imageLoadError)="onImageLoadError($event)"
+              (favoriteToggle)="onProductFavoriteToggle($event)"
+              (quickView)="onProductQuickView($event)"
             />
           </div>
         </cdk-virtual-scroll-viewport>
@@ -93,11 +96,14 @@ import { ProductCardComponent } from '../product-card/product-card.component';
               *ngFor="let product of _products(); trackBy: trackByProductId"
               [product]="product"
               [loading]="isProductLoading(product.id!)"
-              [maxTitleLength]="_maxTitleLength()"
-              [maxDescriptionLength]="_maxDescriptionLength()"
+              [isFavorite]="false"
+              [showDescription]="true"
+              [discountPercentage]="0"
+              [originalPrice]="0"
               (viewDetails)="onProductViewDetails($event)"
               (addToCart)="onProductAddToCart($event)"
-              (imageLoadError)="onImageLoadError($event)"
+              (favoriteToggle)="onProductFavoriteToggle($event)"
+              (quickView)="onProductQuickView($event)"
             />
           </div>
         </ng-template>
@@ -204,9 +210,10 @@ export class ProductListComponent {
   // Outputs
   @Output() productViewDetails = new EventEmitter<Product>();
   @Output() productAddToCart = new EventEmitter<Product>();
+  @Output() productFavoriteToggle = new EventEmitter<Product>();
+  @Output() productQuickView = new EventEmitter<Product>();
   @Output() loadMore = new EventEmitter<void>();
   @Output() refresh = new EventEmitter<void>();
-  @Output() imageLoadError = new EventEmitter<string>();
 
   // Signals internos
   readonly _products = signal<Product[]>([]);
@@ -280,9 +287,16 @@ export class ProductListComponent {
   }
 
   /**
-   * Maneja errores de carga de imagen
+   * Maneja el evento de toggle de favorito
    */
-  onImageLoadError(imageUrl: string): void {
-    this.imageLoadError.emit(imageUrl);
+  onProductFavoriteToggle(product: Product): void {
+    this.productFavoriteToggle.emit(product);
+  }
+
+  /**
+   * Maneja el evento de vista rápida
+   */
+  onProductQuickView(product: Product): void {
+    this.productQuickView.emit(product);
   }
 }

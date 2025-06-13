@@ -1,7 +1,9 @@
-@if (!loading) {
+@if (!loading()) {
   @if (!showForm) {
     <button mat-flat-button color="primary" (click)="onAdd()">Agregar producto</button>
-    <button mat-stroked-button color="accent" (click)="onShowSearchModal()">Buscar producto por ID</button>
+    <button mat-stroked-button color="accent" (click)="onShowSearchModal()">
+      Buscar producto por ID
+    </button>
   }
 }
 
@@ -13,20 +15,26 @@
   (cancel)="onCancelForm()"
 />
 
-
-@if (loading) {
+@if (loading()) {
   <div>Cargando productos...</div>
 }
 
-@if (error) {
-  <div>{{ error }}</div>
+@if (error()) {
+  <div>{{ error() }}</div>
 }
 
-@if (!loading && !error) {
-  <table mat-table [dataSource]="products" class="mat-elevation-z2" style="width: 100%; margin-top: 1rem;">
+@if (!loading() && !error()) {
+  <table
+    mat-table
+    [dataSource]="products()"
+    class="mat-elevation-z2"
+    style="width: 100%; margin-top: 1rem"
+  >
     <ng-container matColumnDef="image">
       <th mat-header-cell *matHeaderCellDef>Imagen</th>
-      <td mat-cell *matCellDef="let product"><img [src]="product.image" alt="{{ product.title }}" width="50"></td>
+      <td mat-cell *matCellDef="let product">
+        <img [src]="product.image" alt="{{ product.title }}" width="50" />
+      </td>
     </ng-container>
     <ng-container matColumnDef="title">
       <th mat-header-cell *matHeaderCellDef>Nombre</th>
@@ -43,14 +51,21 @@
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef>Acciones</th>
       <td mat-cell *matCellDef="let product">
-        <button mat-icon-button color="primary" (click)="onEdit(product)"><mat-icon>edit</mat-icon></button>
-        <button mat-icon-button color="warn" (click)="onDelete(product)"><mat-icon>delete</mat-icon></button>
+        <button mat-icon-button color="primary" (click)="onEdit(product)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="onDelete(product)">
+          <mat-icon>delete</mat-icon>
+        </button>
       </td>
     </ng-container>
     <tr mat-header-row *matHeaderRowDef="['image', 'title', 'price', 'category', 'actions']"></tr>
-    <tr mat-row *matRowDef="let row; columns: ['image', 'title', 'price', 'category', 'actions'];"></tr>
+    <tr
+      mat-row
+      *matRowDef="let row; columns: ['image', 'title', 'price', 'category', 'actions']"
+    ></tr>
   </table>
-  @if (products.length === 0) {
-    <mat-card style="margin-top: 2rem; text-align: center;">No hay productos</mat-card>
+  @if (products().length === 0) {
+    <mat-card style="margin-top: 2rem; text-align: center">No hay productos</mat-card>
   }
 }
