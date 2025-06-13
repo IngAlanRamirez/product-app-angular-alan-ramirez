@@ -1,14 +1,14 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Product } from '../../domain/models/product.model';
 import { ProductFormComponent } from '../product-form/product-form.component';
-import { Product } from '../product.service';
 
 @Component({
   selector: 'app-product-modal',
   standalone: true,
   imports: [CommonModule, ProductFormComponent],
   templateUrl: './product-modal.component.html',
-  styleUrls: ['./product-modal.component.scss']
+  styleUrls: ['./product-modal.component.scss'],
 })
 export class ProductModalComponent {
   @Input() product: Product | null = null;

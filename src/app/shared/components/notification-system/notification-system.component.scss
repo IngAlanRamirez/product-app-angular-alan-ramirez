@@ -1,0 +1,347 @@
+/**
+ * Estilos para NotificationSystem Component
+ */
+
+.notification-container {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 9999;
+  max-width: 400px;
+  width: 100%;
+  pointer-events: none;
+}
+
+.notification {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  margin-bottom: 12px;
+  padding: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+  pointer-events: auto;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-left: 4px solid transparent;
+
+  &:hover {
+    transform: translateX(-4px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  }
+
+  &.animating-out {
+    opacity: 0.5;
+    transform: translateX(100%);
+  }
+}
+
+/* Tipos de notificación */
+.notification-success {
+  border-left-color: #4caf50;
+
+  .notification-icon {
+    color: #4caf50;
+  }
+}
+
+.notification-error {
+  border-left-color: #f44336;
+
+  .notification-icon {
+    color: #f44336;
+  }
+}
+
+.notification-warning {
+  border-left-color: #ff9800;
+
+  .notification-icon {
+    color: #ff9800;
+  }
+}
+
+.notification-info {
+  border-left-color: #2196f3;
+
+  .notification-icon {
+    color: #2196f3;
+  }
+}
+
+/* Icono */
+.notification-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* Contenido */
+.notification-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-title {
+  margin: 0 0 4px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.2;
+}
+
+.notification-message {
+  margin: 0 0 12px 0;
+  font-size: 0.9rem;
+  color: #666;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+/* Acciones */
+.notification-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.notification-action {
+  background: transparent;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #666;
+
+  &:hover {
+    background: #f5f5f5;
+    border-color: #ccc;
+  }
+
+  &.primary {
+    background: #1976d2;
+    border-color: #1976d2;
+    color: white;
+
+    &:hover {
+      background: #1565c0;
+      border-color: #1565c0;
+    }
+  }
+
+  &:focus {
+    outline: 2px solid #1976d2;
+    outline-offset: 2px;
+  }
+}
+
+/* Botón cerrar */
+.notification-close {
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  color: #999;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+
+  &:hover {
+    background: #f5f5f5;
+    color: #666;
+  }
+
+  &:focus {
+    outline: 2px solid #1976d2;
+    outline-offset: 2px;
+  }
+}
+
+/* Barra de progreso */
+.notification-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #1976d2, #42a5f5);
+  animation: progress-countdown linear forwards;
+  transform-origin: left;
+}
+
+@keyframes progress-countdown {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .notification-container {
+    top: 16px;
+    right: 16px;
+    left: 16px;
+    max-width: none;
+  }
+
+  .notification {
+    padding: 12px;
+    margin-bottom: 8px;
+
+    &:hover {
+      transform: none;
+    }
+  }
+
+  .notification-title {
+    font-size: 0.9rem;
+  }
+
+  .notification-message {
+    font-size: 0.8rem;
+  }
+
+  .notification-actions {
+    flex-direction: column;
+
+    .notification-action {
+      width: 100%;
+      text-align: center;
+    }
+  }
+}
+
+/* Modo oscuro */
+@media (prefers-color-scheme: dark) {
+  .notification {
+    background: #2e2e2e;
+    color: #fff;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+
+  .notification-title {
+    color: #fff;
+  }
+
+  .notification-message {
+    color: #ccc;
+  }
+
+  .notification-action {
+    border-color: #555;
+    color: #ccc;
+
+    &:hover {
+      background: #404040;
+      border-color: #666;
+    }
+
+    &.primary {
+      background: #1976d2;
+      border-color: #1976d2;
+      color: white;
+
+      &:hover {
+        background: #1565c0;
+        border-color: #1565c0;
+      }
+    }
+  }
+
+  .notification-close {
+    color: #ccc;
+
+    &:hover {
+      background: #404040;
+      color: #fff;
+    }
+  }
+}
+
+/* Accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .notification {
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
+  }
+
+  .notification-progress {
+    animation: none;
+  }
+}
+
+/* Estados de carga */
+.notification.loading {
+  .notification-icon::after {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #e0e0e0;
+    border-top: 2px solid #1976d2;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 8px;
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Efectos de entrada y salida */
+.notification-enter {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+.notification-enter-active {
+  transform: translateX(0);
+  opacity: 1;
+  transition: all 300ms ease-out;
+}
+
+.notification-leave {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.notification-leave-active {
+  transform: translateX(100%);
+  opacity: 0;
+  transition: all 200ms ease-in;
+}
+
+/* Máximo de notificaciones visibles */
+.notification-container .notification:nth-child(n + 6) {
+  display: none;
+}
+
+/* Indicador de más notificaciones */
+.notification-container::after {
+  content: attr(data-more-count) ' más notificaciones...';
+  display: block;
+  text-align: center;
+  padding: 8px;
+  font-size: 0.8rem;
+  color: #666;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 6px;
+  margin-top: 8px;
+}

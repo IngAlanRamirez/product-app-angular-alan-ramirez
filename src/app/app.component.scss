@@ -1,0 +1,109 @@
+/**
+ * Estilos para App Component
+ */
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f8f9fa;
+}
+
+/* Header */
+.app-header {
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.app-title {
+  margin: 0;
+  padding: 16px 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.title-link {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #1976d2;
+  }
+}
+
+/* Main content */
+.app-main {
+  flex: 1;
+  padding: 24px 0;
+}
+
+/* Footer */
+.app-footer {
+  background: #333;
+  color: white;
+  padding: 16px 0;
+  margin-top: auto;
+}
+
+.app-footer p {
+  margin: 0;
+  text-align: center;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+/* Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 16px;
+  }
+
+  .app-title {
+    font-size: 1.3rem;
+    padding: 12px 0;
+  }
+
+  .app-main {
+    padding: 16px 0;
+  }
+}
+
+/* Modo oscuro */
+@media (prefers-color-scheme: dark) {
+  .app-container {
+    background: #121212;
+    color: #fff;
+  }
+
+  .app-header {
+    background: #1e1e1e;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .app-title {
+    color: #fff;
+  }
+
+  .title-link:hover {
+    color: #90caf9;
+  }
+
+  .app-footer {
+    background: #000;
+  }
+}

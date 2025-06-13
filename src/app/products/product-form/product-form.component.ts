@@ -1,10 +1,10 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Product } from '../../domain/models/product.model';
 
@@ -19,7 +19,7 @@ import { Product } from '../../domain/models/product.model';
     MatInputModule,
     MatButtonModule,
     MatCardModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
   ],
 })
 export class ProductFormComponent {
@@ -42,8 +42,8 @@ export class ProductFormComponent {
 
   ngOnChanges() {
     if (this.product) {
-      // TODO: Reimplementar esta lógica sin NgRx
-      this.form.patchValue(this.product);
+      // Convertir la instancia de Product a datos planos para el formulario
+      this.form.patchValue(this.product.toData());
     } else {
       this.form.reset();
     }
@@ -51,7 +51,18 @@ export class ProductFormComponent {
 
   onSubmit() {
     if (this.form.valid) {
-      this.save.emit(this.form.value as Product);
+      // Crear una instancia de Product desde los datos del formulario
+      const formValue = this.form.value;
+      const productData = {
+        id: this.product?.id,
+        title: formValue.title || '',
+        price: formValue.price || 0,
+        category: formValue.category || '',
+        image: formValue.image || '',
+        description: formValue.description || undefined,
+      };
+      const product = Product.fromData(productData);
+      this.save.emit(product);
     } else {
       this.form.markAllAsTouched();
     }
