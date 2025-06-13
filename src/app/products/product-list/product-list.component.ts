@@ -10,13 +10,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-product-list',
   imports: [
     CommonModule,
     ProductModalComponent,
-    ProductSearchModalComponent,
     MatTableModule,
     MatButtonModule,
     MatIconModule,
@@ -37,12 +37,13 @@ export class ProductListComponent {
   formLoading = false;
 
   // Estado para búsqueda por ID
-  showSearchModal = false;
-  searchLoading = false;
-  searchedProduct: Product | null = null;
-  searchError: string | null = null;
 
-  constructor(private productService: ProductService, private snackBar: MatSnackBar) {
+
+  constructor(
+    private productService: ProductService,
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
+  ) {
     this.loadProducts();
   }
 
@@ -126,38 +127,16 @@ export class ProductListComponent {
     }
   }
 
-  // Mostrar el modal de búsqueda
+  // Mostrar el modal de búsqueda usando MatDialog
   onShowSearchModal() {
-    this.showSearchModal = true;
-    this.searchedProduct = null;
-    this.searchError = null;
-    this.searchLoading = false;
-  }
-
-  // Buscar producto por ID
-  onSearchProductById(id: number) {
-    this.searchedProduct = null;
-    this.searchError = null;
-    this.searchLoading = true;
-    this.productService.getProduct(id).subscribe({
-      next: (product) => {
-        this.searchedProduct = product;
-        this.searchLoading = false;
-      },
-      error: (err) => {
-        this.searchError = err?.message || 'Producto no encontrado';
-        this.searchLoading = false;
-      }
+    const dialogRef = this.dialog.open(ProductSearchModalComponent, {
+      width: '400px',
+      data: {},
+      disableClose: false
     });
+    // No es necesario manejar afterClosed aquí, el modal gestiona su propio estado
   }
 
-  // Cerrar el modal de búsqueda
-  onCloseSearchModal() {
-    this.showSearchModal = false;
-    this.searchedProduct = null;
-    this.searchError = null;
-    this.searchLoading = false;
-  }
 
 }
 

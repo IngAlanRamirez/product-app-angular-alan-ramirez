@@ -13,14 +13,6 @@
   (cancel)="onCancelForm()"
 />
 
-<app-product-search-modal
-  [visible]="showSearchModal"
-  [loading]="searchLoading"
-  [product]="searchedProduct"
-  [error]="searchError"
-  (search)="onSearchProductById($event)"
-  (close)="onCloseSearchModal()"
-/>
 
 @if (loading) {
   <div>Cargando productos...</div>
