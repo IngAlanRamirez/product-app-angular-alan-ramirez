@@ -1,40 +1,52 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
-import { Product } from '../product.service';
-import { ProductFormComponent } from '../product-form/product-form.component';
+import { Product, ProductService } from '../product.service';
+// import { ProductFormComponent } from '../product-form/product-form.component';
 import { ProductModalComponent } from '../product-modal/product-modal.component';
-import * as ProductsActions from '../../store/products.actions';
-import * as ProductsSelectors from '../../store/products.selectors';
-import * as NotificationsSelectors from '../../store/notifications.selectors';
-import * as NotificationsActions from '../../store/notifications.actions';
 
 @Component({
   selector: 'app-product-list',
-  imports: [CommonModule, ProductFormComponent, ProductModalComponent],
+  imports: [CommonModule, ProductModalComponent],
   templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.scss'],
 })
 export class ProductListComponent {
-  products$: Observable<Product[]>;
-  loading$: Observable<boolean>;
-  error$: Observable<string | null>;
-  notificationMessage$: Observable<string | null>;
-  notificationType$: Observable<string | null>;
+  products: Product[] = [];
+  loading: boolean = false;
+  error: string | null = null;
+  notificationMessage: string | null = null;
+  notificationType: 'success' | 'error' | null = null;
 
   showForm = false;
   editingProduct: Product | null = null;
   formLoading = false;
 
-  constructor(private store: Store) {
-    this.products$ = this.store.select(ProductsSelectors.selectAllProducts);
-    this.loading$ = this.store.select(ProductsSelectors.selectProductsLoading);
-    this.error$ = this.store.select(ProductsSelectors.selectProductsError);
-    this.notificationMessage$ = this.store.select(NotificationsSelectors.selectNotificationMessage);
-    this.notificationType$ = this.store.select(NotificationsSelectors.selectNotificationType);
+  constructor(private productService: ProductService) {
+    this.loadProducts();
+  }
 
-    this.store.dispatch(ProductsActions.loadProducts());
+  loadProducts() {
+    this.loading = true;
+    this.error = null;
+    this.productService.getProducts().subscribe({
+      next: (products) => {
+        this.products = products;
+        this.loading = false;
+      },
+      error: (err) => {
+        this.error = err.message || 'Error cargando productos';
+        this.loading = false;
+      }
+    });
+  }
+
+  showNotification(message: string, type: 'success' | 'error') {
+    this.notificationMessage = message;
+    this.notificationType = type;
+    setTimeout(() => {
+      this.notificationMessage = null;
+      this.notificationType = null;
+    }, 3000);
   }
 
   onAdd() {
@@ -43,7 +55,7 @@ export class ProductListComponent {
   }
 
   onEdit(product: Product) {
-    this.editingProduct = product;
+    this.editingProduct = { ...product };
     this.showForm = true;
   }
 
@@ -55,20 +67,50 @@ export class ProductListComponent {
   onSave(product: Product) {
     this.formLoading = true;
     if (this.editingProduct && this.editingProduct.id) {
-      this.store.dispatch(ProductsActions.updateProduct({ id: this.editingProduct.id, product }));
+      // Editar producto
+      this.productService.updateProduct(this.editingProduct.id, product).subscribe({
+        next: (updated) => {
+          this.products = this.products.map(p => p.id === updated.id ? updated : p);
+          this.showNotification('Producto actualizado correctamente', 'success');
+          this.formLoading = false;
+        },
+        error: (err) => {
+          this.showNotification('Error actualizando producto', 'error');
+          this.formLoading = false;
+        }
+      });
     } else {
-      this.store.dispatch(ProductsActions.addProduct({ product }));
+      // Agregar producto
+      this.productService.addProduct(product).subscribe({
+        next: (created) => {
+          this.products = [...this.products, created];
+          this.showNotification('Producto agregado correctamente', 'success');
+          this.formLoading = false;
+        },
+        error: (err) => {
+          this.showNotification('Error agregando producto', 'error');
+          this.formLoading = false;
+        }
+      });
     }
     this.showForm = false;
     this.editingProduct = null;
-    this.formLoading = false;
   }
 
   onDelete(product: Product) {
     if (!product.id) return;
     if (confirm(`¿Seguro que deseas eliminar el producto "${product.title}"?`)) {
-      this.store.dispatch(ProductsActions.deleteProduct({ id: product.id }));
+      this.productService.deleteProduct(product.id).subscribe({
+        next: () => {
+          this.products = this.products.filter(p => p.id !== product.id);
+          this.showNotification('Producto eliminado correctamente', 'success');
+        },
+        error: (err) => {
+          this.showNotification('Error eliminando producto', 'error');
+        }
+      });
     }
   }
+
 }
 

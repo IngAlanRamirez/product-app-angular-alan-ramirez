@@ -29,6 +29,7 @@ export class ProductFormComponent {
 
   ngOnChanges() {
     if (this.product) {
+      // TODO: Reimplementar esta lógica sin NgRx
       this.form.patchValue(this.product);
     } else {
       this.form.reset();

@@ -1,12 +1,12 @@
-@if (!(loading$ | async)) {
+@if (!loading) {
   @if (!showForm) {
     <button (click)="onAdd()">Agregar producto</button>
   }
 }
 
-@if (notificationMessage$ | async) {
-  <div [ngClass]="notificationType$ | async">
-    {{ notificationMessage$ | async }}
+@if (notificationMessage) {
+  <div [ngClass]="notificationType">
+    {{ notificationMessage }}
   </div>
 }
 
@@ -18,15 +18,15 @@
   (cancel)="onCancelForm()"
 />
 
-@if (loading$ | async) {
+@if (loading) {
   <div>Cargando productos...</div>
 }
 
-@if (error$ | async) {
-  <div>{{ error$ | async }}</div>
+@if (error) {
+  <div>{{ error }}</div>
 }
 
-@if (!(loading$ | async) && !(error$ | async)) {
+@if (!loading && !error) {
   <table>
     <thead>
       <tr>
@@ -38,7 +38,7 @@
       </tr>
     </thead>
     <tbody>
-      @for (product of products$ | async; track $index) {
+      @for (product of products; track product.id) {
         <tr>
           <td><img [src]="product.image" alt="{{ product.title }}" width="50"></td>
           <td>{{ product.title }}</td>
@@ -56,4 +56,5 @@
       }
     </tbody>
   </table>
-  }
+}
+
