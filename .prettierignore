@@ -1,0 +1,19 @@
+# Dependencias
+node_modules/
+
+# Archivos de build
+dist/
+build/
+coverage/
+
+# Archivos de configuración
+package-lock.json
+pnpm-lock.yaml
+*.min.js
+*.min.css
+
+# Archivos de Angular
+.angular/
+
+# Logs
+*.log
