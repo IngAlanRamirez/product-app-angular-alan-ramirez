@@ -1,7 +1,7 @@
 @if (!loading) {
   @if (!showForm) {
-    <button (click)="onAdd()">Agregar producto</button>
-    <button (click)="onShowSearchModal()">Buscar producto por ID</button>
+    <button mat-flat-button color="primary" (click)="onAdd()">Agregar producto</button>
+    <button mat-stroked-button color="accent" (click)="onShowSearchModal()">Buscar producto por ID</button>
   }
 }
 
@@ -37,34 +37,34 @@
 }
 
 @if (!loading && !error) {
-  <table>
-    <thead>
-      <tr>
-        <th>Imagen</th>
-        <th>Nombre</th>
-        <th>Precio</th>
-        <th>Categoría</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (product of products; track product.id) {
-        <tr>
-          <td><img [src]="product.image" alt="{{ product.title }}" width="50"></td>
-          <td>{{ product.title }}</td>
-          <td>{{ product.price | currency }}</td>
-          <td>{{ product.category }}</td>
-          <td>
-            <button (click)="onEdit(product)">Editar</button>
-            <button (click)="onDelete(product)">Eliminar</button>
-          </td>
-        </tr>
-      } @empty {
-        <tr>
-          <td colspan="5">No hay productos</td>
-        </tr>
-      }
-    </tbody>
+  <table mat-table [dataSource]="products" class="mat-elevation-z2" style="width: 100%; margin-top: 1rem;">
+    <ng-container matColumnDef="image">
+      <th mat-header-cell *matHeaderCellDef>Imagen</th>
+      <td mat-cell *matCellDef="let product"><img [src]="product.image" alt="{{ product.title }}" width="50"></td>
+    </ng-container>
+    <ng-container matColumnDef="title">
+      <th mat-header-cell *matHeaderCellDef>Nombre</th>
+      <td mat-cell *matCellDef="let product">{{ product.title }}</td>
+    </ng-container>
+    <ng-container matColumnDef="price">
+      <th mat-header-cell *matHeaderCellDef>Precio</th>
+      <td mat-cell *matCellDef="let product">{{ product.price | currency }}</td>
+    </ng-container>
+    <ng-container matColumnDef="category">
+      <th mat-header-cell *matHeaderCellDef>Categoría</th>
+      <td mat-cell *matCellDef="let product">{{ product.category }}</td>
+    </ng-container>
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Acciones</th>
+      <td mat-cell *matCellDef="let product">
+        <button mat-icon-button color="primary" (click)="onEdit(product)"><mat-icon>edit</mat-icon></button>
+        <button mat-icon-button color="warn" (click)="onDelete(product)"><mat-icon>delete</mat-icon></button>
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="['image', 'title', 'price', 'category', 'actions']"></tr>
+    <tr mat-row *matRowDef="let row; columns: ['image', 'title', 'price', 'category', 'actions'];"></tr>
   </table>
+  @if (products.length === 0) {
+    <mat-card style="margin-top: 2rem; text-align: center;">No hay productos</mat-card>
+  }
 }
-

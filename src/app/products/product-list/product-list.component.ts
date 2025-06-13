@@ -4,10 +4,22 @@ import { Product, ProductService } from '../product.service';
 // import { ProductFormComponent } from '../product-form/product-form.component';
 import { ProductModalComponent } from '../product-modal/product-modal.component';
 import { ProductSearchModalComponent } from '../product-search-modal/product-search-modal.component';
+import { MatTableModule } from '@angular/material/table';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-product-list',
-  imports: [CommonModule, ProductModalComponent, ProductSearchModalComponent],
+  imports: [
+    CommonModule,
+    ProductModalComponent,
+    ProductSearchModalComponent,
+    MatTableModule,
+    MatButtonModule,
+    MatIconModule,
+    MatCardModule
+  ],
   templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.scss'],
 })

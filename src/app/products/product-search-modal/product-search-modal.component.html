@@ -1,21 +1,29 @@
-<div class="modal" *ngIf="visible">
-  <div class="modal-content">
-    <h2>Búsqueda de producto por ID</h2>
-    <form (ngSubmit)="onSearch()" autocomplete="off">
-      <input type="number" [(ngModel)]="productId" name="productId" min="1" placeholder="ID del producto" [disabled]="loading" required />
-      <button type="submit" [disabled]="loading">Buscar</button>
-      <button type="button" (click)="onClose()">Cerrar</button>
+<ng-container *ngIf="visible">
+  <div mat-dialog-content style="padding: 0">
+    <h2 mat-dialog-title>Búsqueda de producto por ID</h2>
+    <form (ngSubmit)="onSearch()" autocomplete="off" style="margin-bottom: 1rem;">
+      <mat-form-field appearance="outline" style="width: 100%;">
+        <mat-label>ID del producto</mat-label>
+        <input matInput type="number" [(ngModel)]="productId" name="productId" min="1" [disabled]="loading" required />
+        <mat-error *ngIf="error">{{ error }}</mat-error>
+      </mat-form-field>
+      <div style="margin-top: 1rem; display: flex; gap: 0.5rem; justify-content: flex-end;">
+        <button mat-flat-button color="primary" type="submit" [disabled]="loading">Buscar</button>
+        <button mat-stroked-button type="button" (click)="onClose()">Cerrar</button>
+      </div>
     </form>
-
-    <div *ngIf="loading" class="loading">Buscando producto...</div>
-    <div *ngIf="error" class="error">{{ error }}</div>
-
-    <div *ngIf="product" class="card">
-      <img [src]="product.image" alt="{{ product.title }}" width="100" />
-      <h3>{{ product.title }}</h3>
-      <p><strong>Precio:</strong> {{ product.price | currency }}</p>
-      <p><strong>Categoría:</strong> {{ product.category }}</p>
-      <p>{{ product.description }}</p>
+    <div style="text-align: center; margin: 1rem 0;" *ngIf="loading">
+      <mat-spinner diameter="32"></mat-spinner>
+      <div style="margin-top: 0.5rem; color: #1976d2;">Buscando producto...</div>
     </div>
+    <mat-card *ngIf="product" style="margin: 1rem auto 0; max-width: 350px;">
+      <img mat-card-image [src]="product.image" alt="{{ product.title }}" style="max-width: 100px; margin: auto; display: block;" />
+      <mat-card-title>{{ product.title }}</mat-card-title>
+      <mat-card-subtitle>{{ product.category }}</mat-card-subtitle>
+      <mat-card-content>
+        <p><strong>Precio:</strong> {{ product.price | currency }}</p>
+        <p>{{ product.description }}</p>
+      </mat-card-content>
+    </mat-card>
   </div>
-</div>
+</ng-container>
