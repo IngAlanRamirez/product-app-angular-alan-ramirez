@@ -18,3 +18,5 @@ export * from './search-bar/search-bar.component';
 
 // Componentes de producto
 export * from './product-comparison/product-comparison.component';
+export * from './product-detail/product-detail.component';
+export * from './product-filter/product-filter.component';
