@@ -6,7 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { Product } from '../product.service';
+import { Product } from '../../domain/models/product.model';
 
 @Component({
   selector: 'app-product-form',

@@ -8,7 +8,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { Product, ProductService } from '../product.service';
+import { Product } from '../../domain/models/product.model';
+import { GetProductByIdUseCase } from '../../domain/use-cases/get-product-by-id.usecase';
 
 @Component({
   selector: 'app-product-search-modal',
@@ -33,10 +34,13 @@ export class ProductSearchModalComponent {
   error: string | null = null;
   searched = false;
 
+  /**
+   * Inyecta el caso de uso para buscar producto por ID y dependencias de Angular Material.
+   */
   constructor(
     private dialogRef: MatDialogRef<ProductSearchModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
-    private productService: ProductService
+    private getProductByIdUseCase: GetProductByIdUseCase
   ) {}
 
   onSearch() {
@@ -45,7 +49,7 @@ export class ProductSearchModalComponent {
     this.product = null;
     this.error = null;
     this.searched = false;
-    this.productService.getProduct(+this.productId).subscribe({
+    this.getProductByIdUseCase.execute(+this.productId).subscribe({
       next: (prod) => {
         this.product = prod;
         this.loading = false;
