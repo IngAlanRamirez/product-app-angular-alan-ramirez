@@ -15,3 +15,6 @@ export * from './product-list/product-list.component';
 export * from './breadcrumbs/breadcrumbs.component';
 export * from './notification-system/notification-system.component';
 export * from './search-bar/search-bar.component';
+
+// Componentes de producto
+export * from './product-comparison/product-comparison.component';
