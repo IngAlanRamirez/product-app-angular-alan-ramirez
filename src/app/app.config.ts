@@ -1,15 +1,12 @@
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom } from '@angular/core';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import {
-  PreloadAllModules,
-  provideRouter,
-  withEnabledBlockingInitialNavigation,
-  withPreloading,
-} from '@angular/router';
+import { PreloadAllModules, provideRouter, withPreloading } from '@angular/router';
 
 import { routes } from './app.routes';
-import { ProductRepositoryImpl } from './data/repositories/product.repository.impl';
+import { PRODUCT_REPOSITORY_TOKEN } from './domain/use-cases/get-products.use-case';
+import { ProductHttpRepository } from './infrastructure/repositories/product-http.repository';
 
 /**
  * Configuración de la aplicación Angular 19
@@ -22,35 +19,25 @@ import { ProductRepositoryImpl } from './data/repositories/product.repository.im
  */
 export const appConfig: ApplicationConfig = {
   providers: [
-    // Configuración de Zone.js optimizada para performance
-    provideZoneChangeDetection({
-      eventCoalescing: true,
-      runCoalescing: true,
-    }),
+    // Router con preloading optimizado
+    provideRouter(routes, withPreloading(PreloadAllModules)),
 
-    // Configuración del router con preloading y navegación bloqueante
-    provideRouter(
-      routes,
-      withEnabledBlockingInitialNavigation(),
-      withPreloading(PreloadAllModules)
-    ),
-
-    // HTTP client con interceptors modernos
+    // HTTP Client con interceptors
     provideHttpClient(withInterceptorsFromDi()),
 
-    // Animaciones asíncronas para mejor code splitting
+    // Animaciones asíncronas para mejor performance
     provideAnimationsAsync(),
 
-    /**
-     * Dependency Injection para Clean Architecture
-     *
-     * Pattern: Interface Segregation
-     * Los casos de uso dependen de interfaces, no de implementaciones concretas.
-     * Esto permite intercambiar implementaciones sin afectar la lógica de negocio.
-     */
+    // Importar módulo de animaciones para compatibilidad
+    importProvidersFrom(BrowserAnimationsModule),
+
+    // Configuración de inyección de dependencias
     {
-      provide: 'IProductRepository',
-      useClass: ProductRepositoryImpl,
+      provide: PRODUCT_REPOSITORY_TOKEN,
+      useClass: ProductHttpRepository,
     },
+
+    // Configuraciones de performance
+    // Zone.js optimizations ya están en main.ts
   ],
 };

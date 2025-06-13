@@ -2,8 +2,7 @@
  * Barrel exports para servicios de infraestructura
  */
 
-// Aquí se exportarán todos los servicios externos
-// Ejemplo:
-// export * from './api.service';
+// TODO: Agregar servicios cuando se implementen
+// export * from './http-base.service';
 // export * from './storage.service';
 // export * from './notification.service';
