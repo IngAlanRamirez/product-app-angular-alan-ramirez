@@ -15,23 +15,42 @@ export class ProductRepositoryImpl implements IProductRepository {
 
   constructor(private http: HttpHelper) {}
 
-  getProducts(): Observable<Product[]> {
-    return this.http.get<Product[]>(this.API_URL);
+  /**
+   * Obtiene todos los productos. Puedes pasar parámetros o headers opcionales.
+   */
+  getProducts(params?: any, headers?: any): Observable<Product[]> {
+    return this.http.get<Product[]>(this.API_URL, params, headers);
   }
 
-  getProduct(id: number): Observable<Product> {
-    return this.http.get<Product>(`${this.API_URL}/${id}`);
+  /**
+   * Obtiene un producto por ID. Puedes pasar headers opcionales.
+   */
+  getProduct(id: number, headers?: any): Observable<Product> {
+    return this.http.get<Product>(`${this.API_URL}/${id}`, undefined, headers);
   }
 
-  addProduct(product: Product): Observable<Product> {
-    return this.http.post<Product>(this.API_URL, product);
+  /**
+   * Agrega un producto. Puedes pasar headers opcionales.
+   */
+  addProduct(product: Product, headers?: any): Observable<Product> {
+    return this.http.post<Product>(this.API_URL, product, headers);
   }
 
-  updateProduct(id: number, product: Product): Observable<Product> {
-    return this.http.put<Product>(`${this.API_URL}/${id}`, product);
+  /**
+   * Actualiza un producto. Puedes pasar headers opcionales.
+   */
+  updateProduct(
+    id: number,
+    product: Product,
+    headers?: any
+  ): Observable<Product> {
+    return this.http.put<Product>(`${this.API_URL}/${id}`, product, headers);
   }
 
-  deleteProduct(id: number): Observable<any> {
-    return this.http.delete(`${this.API_URL}/${id}`);
+  /**
+   * Elimina un producto. Puedes pasar headers opcionales.
+   */
+  deleteProduct(id: number, headers?: any): Observable<any> {
+    return this.http.delete(`${this.API_URL}/${id}`, headers);
   }
 }
